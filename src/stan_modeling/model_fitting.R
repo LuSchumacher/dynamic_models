@@ -8,5 +8,40 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # read data
 df <- read_csv("../../data/data_lexical_decision.csv")
 
+# filter for one person
+df_subset <- df %>% 
+  filter(id == 2)
+
+# create stan data list
+stan_data = list(
+  N         = nrow(df_subset),
+  resp      = df_subset$resp,
+  rt        = df_subset$rt,
+  stim_type = df_subset$stim_type
+)
+
+# set initial values
+init = function(chains=4) {
+  L = list()
+  for (c in 1:chains) {
+    L[[c]]=list()
+    
+    L[[c]]$v     = runif(4, 0.3, 6.0)
+    L[[c]]$a     = runif(1, 0.3, 2.5)
+    L[[c]]$ndt   = runif(1, 0.1, 0.2)
+    L[[c]]$v_s   = runif(4, 0.01, 0.1)
+    L[[c]]$a_s   = runif(1, 0.01, 0.1)
+    L[[c]]$ndt_S = rnorm(1, 0.01, 0.1)
+  }
+  return (L)
+}
+
+fit <- stan("dynamic_ddm.stan",
+            init=init(1),
+            data=stan_data,
+            chains=1,
+            iter = 500,
+            cores=parallel::detectCores(),
+            control = list(adapt_delta=0.95))
 
 

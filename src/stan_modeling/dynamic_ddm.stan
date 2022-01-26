@@ -6,9 +6,9 @@ data {
 }
 
 transformed data {
-  real                  noise[6, N];  // diffusion noise (n_params, n_trials)
+  real noise[6, N];  // diffusion noise (n_params, n_trials)
   
-  # sample noise values
+  // sample noise values
   for (i in 1:6) {
     for (n in 1:N)
       noise[i, n] = normal_rng(0, 1);
@@ -28,11 +28,11 @@ parameters {
 
 transformed parameters{
   real v_t[size(stim_type)]; // trial-by-trial drift
-  real a_t;   // trial-by-trial threshold
-  real ndt_t; // trial-by-trial drift
+  real a_t;                  // trial-by-trial threshold
+  real ndt_t;                // trial-by-trial drift
   
-  # super statistical model
-  # initial parameter combination
+  // super statistical model
+  // initial parameter combination
   v_t   = v;
   a_t   = a;
   ndt_t = ndt;
@@ -49,7 +49,7 @@ transformed parameters{
 }
 
 model {
-  # priors
+  // priors
   v     ~ gamma(1.5, 1.0);
   a     ~ gamma(1.5, 1.0);
   ndt   ~ gamma(3.5, 3.0);

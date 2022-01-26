@@ -12,6 +12,9 @@ df <- read_csv("../../data/data_lexical_decision.csv")
 df_subset <- df %>% 
   filter(id == 2)
 
+df_subset <- df_subset %>% 
+  filter(row(df_subset) <= 100)
+
 # create stan data list
 stan_data = list(
   N         = nrow(df_subset),
@@ -37,11 +40,11 @@ init = function(chains=4) {
 }
 
 fit <- stan("dynamic_ddm.stan",
-            init=init(1),
+            init=init(4),
             data=stan_data,
-            chains=1,
-            iter = 500,
-            cores=parallel::detectCores(),
-            control = list(adapt_delta=0.95))
+            chains=4,
+            iter = 2000,
+            cores=parallel::detectCores())
 
+fit
 

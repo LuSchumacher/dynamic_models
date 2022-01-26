@@ -5,17 +5,19 @@ df <- read_csv("/users/lukas/desktop/dynamic_model_project/data/raw_data_lexical
 
 df %<>% 
   filter(vld == 1) %>% 
-  rename(session=mzp,
-         block=blk,
-         trial=trl,
-         stim_type=typ,
-         stim=rto,
-         resp=rsp,
-         rt=RT,
-         id=code) %>% 
+  rename(session = mzp,
+         block = blk,
+         trial = trl,
+         stim_type = typ,
+         stim = rto,
+         resp = rsp,
+         rt = RT,
+         id = code) %>% 
   select(id, sex, age, session, block, trial,
          stim_type, stim, resp, acc, rt) %>% 
-  mutate(rt=rt/1000)
+  mutate(rt = rt/1000,
+         resp = ifelse(resp == 2, 0, 1),
+         stim_type = stim_type + 1)
 
 # reassign subject id
 nr <- 0
@@ -27,10 +29,10 @@ for (i in 2:length(df$id)){
   }
 }
 
+# order dataframe
 df <- df %>%
   mutate(id=as.numeric(factor(df$id))) %>% 
-  arrange(id, session, block, trial) %>% 
-  mutate(resp = ifelse(resp == 2, 0, 1))
+  arrange(id, session, block, trial)
 
 # write.csv(df, "/users/lukas/documents/github/dynamic_models/data/data_lexical_decision.csv", row.names = F)
 

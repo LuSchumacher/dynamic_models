@@ -2,4 +2,4 @@
 __pycache__/
 .ipynb_checkpoints/
 code/checkpoints/
-.Rhistory
+src/stan_modeling/.Rhistory

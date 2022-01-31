@@ -6,7 +6,7 @@ data {
 }
 
 transformed data {
-  real noise[6, N]; // diffusion noise (n_params, n_trials)
+  real noise[6, N]; // dynamic parameter noise (n_params, n_trials)
   
   // sample noise values
   for (i in 1:6) {
@@ -16,7 +16,7 @@ transformed data {
 }
 
 parameters {
-  real          v[4];   // separate drift rate for each stimulus type
+  real<lower=0> v[4];   // separate drift rate for each stimulus type
   real<lower=0> a;      // threshold
   real<lower=0> ndt;    // non-decision time                        
   

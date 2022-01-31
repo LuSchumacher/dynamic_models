@@ -13,7 +13,7 @@ df_subset <- df %>%
   filter(id == 2)
 
 df_subset <- df_subset %>% 
-  filter(row(df_subset) <= 100)
+  filter(row(df_subset) <= 3200)
 
 # create stan data list
 stan_data = list(
@@ -29,12 +29,12 @@ init = function(chains=4) {
   for (c in 1:chains) {
     L[[c]]=list()
     
-    L[[c]]$v     = runif(4, 0.3, 6.0)
-    L[[c]]$a     = runif(1, 0.3, 2.5)
+    L[[c]]$v     = runif(4, 0.5, 4.0)
+    L[[c]]$a     = runif(1, 1.0, 1.5)
     L[[c]]$ndt   = runif(1, 0.1, 0.2)
-    L[[c]]$v_s   = runif(4, 0.01, 0.1)
-    L[[c]]$a_s   = runif(1, 0.01, 0.1)
-    L[[c]]$ndt_S = rnorm(1, 0.01, 0.1)
+    L[[c]]$v_s   = runif(4, 0.01, 0.05)
+    L[[c]]$a_s   = runif(1, 0.01, 0.02)
+    L[[c]]$ndt_S = rnorm(1, 0.01, 0.05)
   }
   return (L)
 }
@@ -46,5 +46,8 @@ fit <- stan("dynamic_ddm.stan",
             iter = 2000,
             cores=parallel::detectCores())
 
-fit
+traceplot(fit, "v[1]")
+
+
+rstan::extract(fit, pars=starts_with("ndt_t["))
 

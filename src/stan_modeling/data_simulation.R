@@ -1,5 +1,6 @@
 library(tidyverse)
 library(rstan)
+library(bayesplot)
 
 # set working directory to script location
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -65,6 +66,7 @@ init = function(chains=4) {
     L[[c]]$a   = runif(1, 0.3, 2.5)
     L[[c]]$ndt = runif(1, 0.1, 0.2)
   }
+  
   return (L)
 }
 
@@ -76,3 +78,4 @@ fit <- stan("static_ddm.stan",
             iter = 2000,
             cores=parallel::detectCores())
 
+mcmc_pairs(fit, pars=c("v[1]", "v[2]", "a", "ndt"))

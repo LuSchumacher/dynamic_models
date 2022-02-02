@@ -1,8 +1,8 @@
 data {
   int<lower=1>          N;            // number of trials
-  int<lower=0, upper=1> resp[N];      // response
+  //int<lower=0, upper=1> resp[N];      // response
   real<lower=0>         rt[N];        // response time
-  int<lower=1, upper=4> stim_type[N]; // stimulus type (difficulty)
+  int<lower=1, upper=2> stim_type[N]; // stimulus type (difficulty)
 }
 
 parameters {

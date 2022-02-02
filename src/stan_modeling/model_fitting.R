@@ -45,9 +45,3 @@ fit <- stan("dynamic_ddm.stan",
             chains=4,
             iter = 2000,
             cores=parallel::detectCores())
-
-traceplot(fit, "v[1]")
-
-
-rstan::extract(fit, pars=starts_with("ndt_t["))
-

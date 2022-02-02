@@ -32,19 +32,47 @@ static_diffusion_simulator <- function(n_obs){
     resp[i] <- x[1]
     rt[i] <- x[2]
   }
-  
-  return(data_frame("context" = context,
-                    "resp" = resp,
-                    "rt" = rt))
+
+  return(list("data" = data_frame("context" = context,
+                                  "resp"    = resp,
+                                  "rt"      = rt),
+              "params" = params))
 }
 
 n_obs <- 120
-df <- static_diffusion_simulator(n_obs)
+simulation <- static_diffusion_simulator(n_obs)
 
-
+df <- simulation$data
+true_param <- simulation$params
 #------------------------------------------------------------------------#
 # Model Fitting
 #------------------------------------------------------------------------#
+# create stan data list
+stan_data = list(
+  N         = nrow(df),
+  resp      = df$resp,
+  rt        = df$rt,
+  stim_type = df$context
+)
 
+# set initial values
+init = function(chains=4) {
+  L = list()
+  for (c in 1:chains) {
+    L[[c]]=list()
+    
+    L[[c]]$v   = runif(2, 0.3, 6.0)
+    L[[c]]$a   = runif(1, 0.3, 2.5)
+    L[[c]]$ndt = runif(1, 0.1, 0.2)
+  }
+  return (L)
+}
 
+# fit model
+fit <- stan("static_ddm.stan",
+            init=init(4),
+            data=stan_data,
+            chains=4,
+            iter = 2000,
+            cores=parallel::detectCores())
 

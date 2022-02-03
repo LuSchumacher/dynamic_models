@@ -19,6 +19,27 @@ df %<>%
          resp = ifelse(resp == 2, 0, 1),
          stim_type = stim_type + 1)
 
+# difficult --> 2, 3
+# word --> 1, 2
+df$difficult <- NA
+df$word <- NA
+for (i in 1:nrow(df)){
+  # difficult
+  if (df$stim_type[i] == 2 | df$stim_type[i] == 3){
+    df$difficult[i] <- 1
+  } else{
+    df$difficult[i] <- 2
+  }
+  
+  # word
+  if (df$stim_type[i] == 1 | df$stim_type[i] == 2){
+    df$word[i] <- 1
+  } else{
+    df$word[i] <- 2
+  }
+}
+
+
 # reassign subject id
 nr <- 0
 df$id[1] <- 1
@@ -34,7 +55,7 @@ df <- df %>%
   mutate(id=as.numeric(factor(df$id))) %>% 
   arrange(id, session, block, trial)
 
-# write.csv(df, "/users/lukas/documents/github/dynamic_models/data/data_lexical_decision.csv", row.names = F)
+write.csv(df, "/users/lukas/documents/github/dynamic_models/data/data_lexical_decision.csv", row.names = F)
 
 # stim_type
 #----------------------------------------------------------------------------#

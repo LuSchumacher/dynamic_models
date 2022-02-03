@@ -1,31 +1,39 @@
 data {
-  int<lower=1>          N;            // number of trials
-  //int<lower=0, upper=1> resp[N];      // response
-  real<lower=0>         rt[N];        // response time
-  int<lower=1, upper=2> stim_type[N]; // stimulus type (difficulty)
+  int<lower=1>          N;             // number of trials
+  int<lower=0, upper=1> resp[N];       // response
+  real<lower=0>         rt[N];         // response time
+  int<lower=1, upper=2> difficulty[N]; // stimulus difficulty
 }
 
 parameters {
-  real<lower=0.3, upper=6.0> v[2];   // separate drift rate for each stimulus type
-  real<lower=0.3, upper=2.5> a;      // threshold
-  real<lower=0.1, upper=1.6> ndt;    // non-decision time                        
+  real<lower=0.0>       v[2];   // separate drift rate for each stimulus type
+  real<lower=0.0>       a;      // threshold
+  real<lower=0.0>       ndt;    // non-decision time                        
 }
 
 model {
   // priors
-  v     ~ uniform(0.3, 6.0);
-  a     ~ uniform(0.3, 2.5);
-  ndt   ~ uniform(0.1, 1.6);
+  v   ~ gamma(2.5, 1.5);
+  a   ~ gamma(4, 3);
+  ndt ~ gamma(1, 5);
   
-  for (i in 1:N) {
-      rt[i] ~ wiener(a, ndt, 0.5, v[stim_type[i]]);
-      }
+  
+  for (t in 1:N) {
+    if (resp[t] == 1) {
+      rt[t] ~ wiener(a, ndt, 0.5, v[difficulty[t]]);
+    } else {
+        rt[t] ~ wiener(a, ndt, 0.5, -v[difficulty[t]]);
+    }
+  }
 }
 
 generated quantities {
   real log_lik[N];
-  for (i in 1:N) {
-      log_lik[i] = wiener_lpdf(rt[i] | a, ndt, 0.5, v[stim_type[i]]);
-      }
+  for (t in 1:N) {
+    if(resp[t]==1) {
+      log_lik[t] = wiener_lpdf(rt[t] | a, ndt, 0.5, v[difficulty[t]]);
+    } else {
+      log_lik[t] = wiener_lpdf(rt[t] | a, ndt, 0.5, -v[difficulty[t]]);
+    }
+  }
 }
-

@@ -95,6 +95,13 @@ df$parameter[df$parameter == "v[1]"] <- "v_1"
 df$parameter[df$parameter == "v[2]"] <- "v_2"
 
 # write_csv(df, "simulation_outcome.csv")
+sim_outcome <- read_csv("simulation_outcome.csv")
+
+summary <- sim_outcome %>% 
+  group_by(parameter) %>% 
+  summarise(mean_sd = mean(sd),
+            sd_sd = sd(sd))
+
 #------------------------------------------------------------------------#
 # PP CHECK
 #------------------------------------------------------------------------#
@@ -114,7 +121,3 @@ df %>%
 
 mean(df$resp)
 mean(df_subset$acc)
-
-
-
-

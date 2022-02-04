@@ -18,7 +18,7 @@ df_subset <- df_subset %>%
 # create stan data list
 stan_data = list(
   N         = nrow(df_subset),
-  resp      = df_subset$resp,
+  correct   = df_subset$acc,
   rt        = df_subset$rt,
   stim_type = df_subset$stim_type
 )

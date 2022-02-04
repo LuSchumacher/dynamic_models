@@ -90,9 +90,11 @@ for (i in 1:n_sim){
   df <- rbind(df, tmp)
 }
 
+df <- cbind(df[, 1], df[,2:ncol(df)] %>% round(digits = 3))
+df$parameter[df$parameter == "v[1]"] <- "v_1"
+df$parameter[df$parameter == "v[2]"] <- "v_2"
+
 write_csv(df, "simulation_outcome.csv")
-
-
 #------------------------------------------------------------------------#
 # PP CHECK
 #------------------------------------------------------------------------#

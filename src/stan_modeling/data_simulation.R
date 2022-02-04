@@ -94,13 +94,13 @@ df <- cbind(df[, 1], df[,2:ncol(df)] %>% round(digits = 3))
 df$parameter[df$parameter == "v[1]"] <- "v_1"
 df$parameter[df$parameter == "v[2]"] <- "v_2"
 
-write_csv(df, "simulation_outcome.csv")
+# write_csv(df, "simulation_outcome.csv")
 #------------------------------------------------------------------------#
 # PP CHECK
 #------------------------------------------------------------------------#
+sim_outcome <- read_csv("simulation_outcome.csv")
 
-params <- c(3.49, 1.8, 2, 3.5, 1.61, 0.36)
-n_obs <- 3200
+n_obs <- 120
 simulation <- static_diffusion_simulator(n_obs, n_condition = 2, params = params)
 
 df <- simulation$data

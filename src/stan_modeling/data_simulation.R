@@ -4,7 +4,7 @@ library(bayesplot)
 
 # set working directory to script location
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-source("wienerProcess2.R")
+source("wienerProcess.R")
 
 diffusion_prior <- function(){
   v     <- rgamma(2, 2.5, 1.5)
@@ -13,30 +13,29 @@ diffusion_prior <- function(){
   return(c(v, a, ndt))
 }
 
-
 generate_context <- function(n_obs, n_condition){
   return(sample(1:n_condition, n_obs, replace = T))
 }
-
 
 static_diffusion_simulator <- function(n_obs, n_condition, params=NA){
   if (is.na(params[1])){
     params  <- diffusion_prior()
   }
+  
   context <- generate_context(n_obs, n_condition)
   
   rt   <- integer(n_obs)
   resp <- integer(n_obs)
   
   for (i in 1:n_obs){
-    x <- wienerProcess(params[context[i]], params[n_condition + 1], 0.5, params[n_condition + 2])
-    resp[i] <- x[1]
-    rt[i] <- x[2]
+    rt[i] <- wienerProcess(params[context[i]], params[n_condition + 1], 0.5, params[n_condition + 2])
+    resp[i] <- ifelse(rt[i] > 0, 1, 0)
   }
-
+  
   return(list("data" = data_frame("context" = context,
                                   "resp"    = resp,
-                                  "rt"      = rt),
+                                  "rt"      = rt,
+                                  "rt_abs"  = abs(rt)),
               "params" = params))
 }
 #------------------------------------------------------------------------#
@@ -53,7 +52,8 @@ init = function(chains=4) {
   }
   return (L)}
 
-df <- tibble()
+summary_df <- tibble()
+sim_data <- tibble()
 n_sim <- 100
 n_obs <- 120
 
@@ -61,16 +61,16 @@ for (i in 1:n_sim){
   # simulate data
   simulation <- static_diffusion_simulator(n_obs, 2)
   # store data and true parameters
-  pred_data <- simulation$data
+  tmp_sim_data <- simulation$data
   true_param <- simulation$params
   
   # create stan data list
   stan_data = list(
-    N         = nrow(pred_data),
-    correct   = pred_data$resp,
-    rt        = pred_data$rt,
-    min_rt    = min(pred_data$rt),
-    stim_type = pred_data$context)
+    N         = nrow(tmp_sim_data),
+    correct   = tmp_sim_data$resp,
+    rt        = tmp_sim_data$rt_abs,
+    min_rt    = min(tmp_sim_data$rt_abs),
+    stim_type = tmp_sim_data$context)
   
   # fit model
   fit <- stan("static_ddm.stan",
@@ -81,23 +81,28 @@ for (i in 1:n_sim){
               cores=parallel::detectCores())
   
   # store parameter summary stats
-  tmp <- as_tibble(summary(fit, pars=c("v[1]", "v[2]", "a", "ndt"))$summary, rownames="parameter")
-  # store ture parameters
-  tmp <- tmp %>% 
+  tmp_summary <- as_tibble(summary(fit, pars=c("v[1]", "v[2]", "a", "ndt"))$summary, rownames="parameter")
+  # store true parameters
+  tmp_summary <- tmp_summary %>% 
     mutate(true_param = true_param)
-  tmp$sim <- i
   
-  df <- rbind(df, tmp)
+  tmp_summary$sim <- i
+  tmp_sim_data$sim <- i
+  
+  summary_df <- rbind(summary_df, tmp_summary)
+  sim_data <- rbind(sim_data, tmp_sim_data)
 }
 
-df <- cbind(df[, 1], df[,2:ncol(df)] %>% round(digits = 3))
-df$parameter[df$parameter == "v[1]"] <- "v_1"
-df$parameter[df$parameter == "v[2]"] <- "v_2"
+summary_df <- cbind(summary_df[, 1], summary_df[,2:ncol(summary_df)] %>% round(digits = 3))
+summary_df$parameter[summary_df$parameter == "v[1]"] <- "v_1"
+summary_df$parameter[summary_df$parameter == "v[2]"] <- "v_2"
 
-# write_csv(df, "simulation_outcome.csv")
-sim_outcome <- read_csv("simulation_outcome.csv")
+write_csv(summary_df, "simulation_outcome.csv")
+write_csv(sim_data, "sim_data.csv")
+# sim_outcome <- read_csv("simulation_summary.csv")
+# sim_data <- read_csv("sim_data.csv")
 
-summary <- sim_outcome %>% 
+summary <- summary_df %>% 
   group_by(parameter) %>% 
   summarise(mean_sd = mean(sd),
             sd_sd = sd(sd))
@@ -105,19 +110,19 @@ summary <- sim_outcome %>%
 #------------------------------------------------------------------------#
 # PP CHECK
 #------------------------------------------------------------------------#
-sim_outcome <- read_csv("simulation_outcome.csv")
-
-n_obs <- 120
-simulation <- static_diffusion_simulator(n_obs, n_condition = 2, params = params)
-
-df <- simulation$data
-true_param <- simulation$params
-
-df %>% 
-  ggplot()+
-  geom_density(aes(x=rt))+
-  geom_density(aes(x=rt),
-               data = df_subset)
-
-mean(df$resp)
-mean(df_subset$acc)
+# sim_outcome <- read_csv("simulation_outcome.csv")
+# 
+# n_obs <- 120
+# simulation <- static_diffusion_simulator(n_obs, n_condition = 2, params = params)
+# 
+# df <- simulation$data
+# true_param <- simulation$params
+# 
+# df %>% 
+#   ggplot()+
+#   geom_density(aes(x=rt))+
+#   geom_density(aes(x=rt),
+#                data = df_subset)
+# 
+# mean(df$resp)
+# mean(df_subset$acc)

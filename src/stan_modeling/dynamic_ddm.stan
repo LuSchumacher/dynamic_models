@@ -1,8 +1,9 @@
 data {
   int<lower=1>          N;            // number of trials
-  int<lower=0, upper=1> resp[N];      // response
+  int<lower=0, upper=1> correct[N];   // correctness of response
   real<lower=0>         rt[N];        // response time
-  int<lower=1, upper=4> stim_type[N]; // stimulus type (difficulty)
+  real<lower=0>         min_rt;       // smallest response time in data
+  int<lower=1, upper=4> context[N];   // experimental conditions
 }
 
 transformed data {
@@ -31,9 +32,9 @@ transformed parameters{
   real ndt_t[N];  // trial-by-trial drift
   
   // initial parameter combination
-  v_t[:, 1]   = v;
-  a_t[1]   = a;
-  ndt_t[1] = ndt;
+  v_t[:, 1] = v;
+  a_t[1]    = a;
+  ndt_t[1]  = ndt;
   
   // super statistical model
   for (i in 2:N){
@@ -47,31 +48,31 @@ transformed parameters{
     ndt_t[i]  = ndt_t[i - 1] + ndt_s * noise[6, i];
     
     // constrain parameters
-    v_t[1, i] = min([max([v_t[1, i], 0.1]), 6]);
-    v_t[2, i] = min([max([v_t[2, i], 0.1]), 6]);
-    v_t[3, i] = min([max([v_t[3, i], 0.1]), 6]);
-    v_t[4, i] = min([max([v_t[4, i], 0.1]), 6]);
+    v_t[1, i] = min([max([v_t[1, i], 0.0]), 8]);
+    v_t[2, i] = min([max([v_t[2, i], 0.0]), 8]);
+    v_t[3, i] = min([max([v_t[3, i], 0.0]), 8]);
+    v_t[4, i] = min([max([v_t[4, i], 0.0]), 8]);
     
-    a_t[i]    = min([max([a_t[i], 0.3]), 2.5]);
-    ndt_t[i]  = min([max([ndt_t[i], 0.1]), rt[i] - 0.001]);
+    a_t[i]    = min([max([a_t[i], 0.01]), 6]);
+    ndt_t[i]  = min([max([ndt_t[i], 0.01]), rt[i] - 0.001]);
   }
 }
 
 model {
   // priors
-  v     ~ gamma(1.5, 1.0);
-  a     ~ gamma(1.5, 1.0);
-  ndt   ~ gamma(3.5, 3.0);
+  v   ~ gamma(2.5, 1.5);
+  a   ~ gamma(4.0, 3.0);
+  ndt ~ gamma(1.5, 5.0);
   
   v_s   ~ gamma(1.0, 20.0);
   a_s   ~ gamma(1.0, 20.0);
   ndt_s ~ gamma(1.0, 20.0);
   
   for (i in 1:N) {
-    if (resp[i] == 1) {
-      rt[i] ~ wiener(a_t[i], ndt_t[i], 0.5, v_t[stim_type[i], i]);
+    if (correct[i] == 1) {
+      rt[i] ~ wiener(a_t[i], ndt_t[i], 0.5, v_t[context[i], i]);
     } else {
-        rt[i] ~ wiener(a_t[i], ndt_t[i], 0.5, -v_t[stim_type[i], i]);
+        rt[i] ~ wiener(a_t[i], ndt_t[i], 0.5, -v_t[context[i], i]);
     }
   }
 }
@@ -79,10 +80,10 @@ model {
 generated quantities {
   real log_lik[N];
   for (i in 1:N) {
-    if(resp[i]==1) {
-      log_lik[i] = wiener_lpdf(rt[i] | a_t[i], ndt_t[i], 0.5, v_t[stim_type[i], i]);
+    if(correct[i]==1) {
+      log_lik[i] = wiener_lpdf(rt[i] | a_t[i], ndt_t[i], 0.5, v_t[context[i], i]);
     } else {
-      log_lik[i] = wiener_lpdf(rt[i] | a_t[i], ndt_t[i], 0.5, -v_t[stim_type[i], i]);
+      log_lik[i] = wiener_lpdf(rt[i] | a_t[i], ndt_t[i], 0.5, -v_t[context[i], i]);
     }
   }
 }

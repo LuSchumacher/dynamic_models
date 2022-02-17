@@ -80,8 +80,8 @@ def dynamic_diffusion_process(prior_samples, context, n_obs):
         params_t[1] = min(max(params_t[1], 0.0), 8)
         params_t[2] = min(max(params_t[2], 0.0), 8)
         params_t[3] = min(max(params_t[3], 0.0), 8)
-        params_t[4] = min(max(params_t[4], 0.001), 6)
-        params_t[5] = min(max(params_t[5], 0.001), 4)
+        params_t[4] = min(max(params_t[4], 0.01), 6)
+        params_t[5] = min(max(params_t[5], 0.01), 4)
         
     return np.atleast_2d(rt).T, theta_d, theta_s
 

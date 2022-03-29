@@ -50,3 +50,35 @@ fit <- stan("tbt_var.stan",
 mcmc_pairs(fit, pars = c("v[1]", "v[2]", "v[3]", "v[4]", "a", "ndt", "v_sd", "a_sd"))
 
 fit
+
+
+##------------------------------------------------------------------------------------##
+## StanDDM testing
+##------------------------------------------------------------------------------------##
+devtools::install_github('https://github.com/Seneketh/StanDDM.git', ref = 'master')
+library(StanDDM)
+library(tidyverse)
+library(magrittr)
+library(rstan)
+
+
+# data prep
+stanDDM_data <- df_subset %>% 
+  select(id, rt, stim_type, acc) %>% 
+  rename(suj=id,
+         crit=stim_type,
+         cor=acc)
+
+stanDDM_data <- experimental_data_processing(stanDDM_data)
+
+fit <- StanDDM::StanDDM(data = stanDDM_data,
+                 simulation = FALSE,
+                 include_models = 'st_sv')
+
+
+
+df %>% 
+  mutate(id = replace(...)) %>% 
+  mutate(id = str_replace(...))
+
+

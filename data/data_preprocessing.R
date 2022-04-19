@@ -53,8 +53,7 @@ for (i in 2:length(df$id)){
 # order dataframe
 df <- df %>%
   mutate(id=as.numeric(factor(df$id))) %>% 
-  arrange(id, session, block, trial) %>% 
-  filter(rt > 0.2)
+  arrange(id, session, block, trial)
 
 write.csv(df, "/users/lukas/documents/github/dynamic_models/data/data_lexical_decision.csv", row.names = F)
 

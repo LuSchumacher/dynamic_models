@@ -58,8 +58,8 @@ init = function(chains=4) {
 
 summary_df <- tibble()
 sim_data <- tibble()
-n_sim <- 100
-n_obs <- 800
+n_sim <- 1
+n_obs <- 3200
 
 for (i in 1:n_sim){
   # simulate data
@@ -110,26 +110,6 @@ summary <- summary_df %>%
   group_by(parameter) %>% 
   summarise(mean_sd = mean(sd),
             sd_sd = sd(sd))
-
-#------------------------------------------------------------------------#
-# PP CHECK
-#------------------------------------------------------------------------#
-# sim_outcome <- read_csv("simulation_outcome.csv")
-# 
-# n_obs <- 120
-# simulation <- static_diffusion_simulator(n_obs, n_condition = 2, params = params)
-# 
-# df <- simulation$data
-# true_param <- simulation$params
-# 
-# df %>% 
-#   ggplot()+
-#   geom_density(aes(x=rt))+
-#   geom_density(aes(x=rt),
-#                data = df_subset)
-# 
-# mean(df$resp)
-# mean(df_subset$acc)
 
 
 

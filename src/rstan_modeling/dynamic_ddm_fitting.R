@@ -67,8 +67,10 @@ fit <- stan("dynamic_ddm.stan",
             init=init(4),
             data=stan_data,
             chains=4,
-            iter = 2000,
-            cores=parallel::detectCores())
+            iter=2000,
+            cores=parallel::detectCores(),
+            control=list(adapt_delta=0.99,
+                         max_treedepth=15))
 
 theta_d <- c("v[1]", "v[2]", "v[3]", "v[4]", "a", "ndt")
 theta_s <- c("v_s[1]", "v_s[2]", "v_s[3]", "v_s[4]", "a_s", "ndt_s")

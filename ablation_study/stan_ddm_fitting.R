@@ -14,8 +14,8 @@ sim_data_highVar <- pd$read_pickle("sim_data_ablation/sim_data_ablation_3200_hig
 
 ablation_fitting <- function(data) {
   # initialize data structure
-  post_samples <- data.frame()
-  for (sim in 1:100) {
+  post_samples <- read.csv("sim_data_ablation/stan_post_noVar.csv")
+  for (sim in 10:100) {
     # subset data
     rt <- abs(sim_data_noVar$rt[sim, ])
     context <- sim_data_noVar$context[sim, ] + 1
@@ -56,7 +56,7 @@ ablation_fitting <- function(data) {
     tmp <- as.data.frame(rstan::extract(fit))
     tmp$sim <- sim
     post_samples <- rbind(post_samples, tmp)
-    
+    write.csv(post_samples, "sim_data_ablation/stan_post_noVar.csv", row.names = F)
     print(paste("Simulation:", sim, "is finished..."))
   }
   
@@ -64,5 +64,6 @@ ablation_fitting <- function(data) {
 }
 
 post_noVar <- ablation_fitting(sim_data_noVar)
+
 
 

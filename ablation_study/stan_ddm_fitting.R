@@ -9,8 +9,6 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # read sim data
 sim_data_noVar <- pd$read_pickle("sim_data_ablation/sim_data_ablation_3200_noVar.pkl")
-sim_data_lowVar <- pd$read_pickle("sim_data_ablation/sim_data_ablation_3200_lowVar.pkl")
-sim_data_highVar <- pd$read_pickle("sim_data_ablation/sim_data_ablation_3200_highVar.pkl")
 
 ablation_fitting <- function(data) {
   # initialize data structure

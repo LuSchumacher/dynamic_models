@@ -32,6 +32,13 @@ class HeteroscedasticNetwork(tf.keras.Model):
     def call(self, x):
         """
         Forward pass through the model.
+        ----------
+        Input:
+        np.array of shape (batchsize, n_obs, 5)
+        ----------
+        Output:
+        tf.tensor distribution of shape (batchsize, n_obs, n_params_d)
+        tf.tensor distribution of shape (batchsize, n_params_s)
         """
         
         # obtain representation
@@ -47,7 +54,7 @@ class HeteroscedasticNetwork(tf.keras.Model):
 
 class StaticHeteroscedasticNetwork(tf.keras.Model):
     
-    def __init__(self, n_params_d):
+    def __init__(self, n_params):
         super(StaticHeteroscedasticNetwork, self).__init__()
         
         self.preprocessor = Sequential([
@@ -58,15 +65,20 @@ class StaticHeteroscedasticNetwork(tf.keras.Model):
         
         self.static_predictor = Sequential([
             Dense(64, activation='selu', kernel_initializer='lecun_normal'),
-            tf.keras.layers.Dense(tfpl.MultivariateNormalTriL.params_size(n_params_d)),
-            tfpl.MultivariateNormalTriL(n_params_d)
+            tf.keras.layers.Dense(tfpl.MultivariateNormalTriL.params_size(n_params)),
+            tfpl.MultivariateNormalTriL(n_params)
         ])
 
         
     def call(self, x):
         """
         Forward pass through the model.
+        ----------
+        Input: np.array of shape (batchsize, n_obs, 5)
+        ----------
+        Output: tf.tensor distribution of shape (batchsize, n_obs, n_params)
         """
+
         # obtain representation
         rep = self.preprocessor(x)
         

@@ -6,7 +6,6 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfpl = tfp.layers
 
-
 class HeteroscedasticNetwork(tf.keras.Model):
     
     def __init__(self, n_params_d, n_params_s):
@@ -49,7 +48,7 @@ class HeteroscedasticNetwork(tf.keras.Model):
 class StaticHeteroscedasticNetwork(tf.keras.Model):
     
     def __init__(self, n_params_d):
-        super(HeteroscedasticNetwork, self).__init__()
+        super(StaticHeteroscedasticNetwork, self).__init__()
         
         self.preprocessor = Sequential([
             GRU(64, return_sequences=True),
@@ -57,7 +56,7 @@ class StaticHeteroscedasticNetwork(tf.keras.Model):
             Dense(128, activation='selu', kernel_initializer='lecun_normal'),
         ])
         
-        self.dynamic_predictor = Sequential([
+        self.static_predictor = Sequential([
             Dense(64, activation='selu', kernel_initializer='lecun_normal'),
             tf.keras.layers.Dense(tfpl.MultivariateNormalTriL.params_size(n_params_d)),
             tfpl.MultivariateNormalTriL(n_params_d)
@@ -72,6 +71,6 @@ class StaticHeteroscedasticNetwork(tf.keras.Model):
         rep = self.preprocessor(x)
         
         # Predict dynamic
-        preds_dyn = self.dynamic_predictor(rep)
+        preds_static = self.dynamic_predictor(rep)
 
-        return preds_dyn
+        return preds_static

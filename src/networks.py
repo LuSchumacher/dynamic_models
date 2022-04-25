@@ -34,13 +34,13 @@ class HeteroscedasticNetwork(tf.keras.Model):
         Forward pass through the model.
         """
         
-        # Obtain representation
+        # obtain representation
         rep = self.preprocessor(x)
         
-        # Predict dynamic
+        # predict dynamic microscopic params
         preds_dyn = self.dynamic_predictor(rep)
 
-        # predict static
+        # predict static macroscopic params
         preds_stat = self.static_predictor(rep)
 
         return preds_dyn, preds_stat
@@ -67,10 +67,10 @@ class StaticHeteroscedasticNetwork(tf.keras.Model):
         """
         Forward pass through the model.
         """
-        # Obtain representation
+        # obtain representation
         rep = self.preprocessor(x)
         
-        # Predict dynamic
+        # predict static microscropic params
         preds_static = self.dynamic_predictor(rep)
 
         return preds_static

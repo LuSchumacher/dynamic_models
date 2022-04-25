@@ -74,15 +74,17 @@ class StaticHeteroscedasticNetwork(tf.keras.Model):
         """
         Forward pass through the model.
         ----------
-        Input: np.array of shape (batchsize, n_obs, 5)
+        Input:
+        np.array of shape (batchsize, n_obs, 5)
         ----------
-        Output: tf.tensor distribution of shape (batchsize, n_obs, n_params)
+        Output:
+        tf.tensor distribution of shape (batchsize, n_obs, n_params)
         """
 
         # obtain representation
         rep = self.preprocessor(x)
         
         # predict static microscropic params
-        preds_static = self.dynamic_predictor(rep)
+        preds_static = self.static_predictor(rep)
 
         return preds_static

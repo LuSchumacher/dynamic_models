@@ -4,7 +4,7 @@ from tensorflow.keras.utils import to_categorical
 
 def dynamic_prior(batch_size, fixed_var=None):
     """
-    Generates a random draw from the diffusion model prior.
+    Generates a random draw from the dynamic diffusion model prior.
     """
     v = np.random.gamma(2.5, 1/1.5, (batch_size, 4))
     a = np.random.gamma(4.0, 1/3.0, batch_size)
@@ -103,6 +103,7 @@ def dynamic_batch_simulator(prior_samples, context):
                                                                   n_obs)
     
     return np.concatenate((rt, np.expand_dims(context, axis=2)), axis=-1), theta_d, theta_s
+
 
 @njit
 def static_diffusion_process(prior_samples, context, n_obs):

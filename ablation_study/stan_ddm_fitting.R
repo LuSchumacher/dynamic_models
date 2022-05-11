@@ -13,7 +13,7 @@ sim_data_noVar <- pd$read_pickle("sim_data_ablation/sim_data_ablation_3200_noVar
 ablation_fitting <- function(data) {
   # initialize data structure
   post_samples <- read.csv("sim_data_ablation/stan_post_noVar.csv")
-  for (sim in 98:100) {
+  for (sim in 1:100) {
     # subset data
     rt <- abs(sim_data_noVar$rt[sim, ])
     context <- sim_data_noVar$context[sim, ] + 1
@@ -63,6 +63,3 @@ ablation_fitting <- function(data) {
 }
 
 post_noVar <- ablation_fitting(sim_data_noVar)
-
-
-
